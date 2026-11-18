@@ -1,0 +1,23 @@
+# Repositories to audit.
+#
+# One per line. Three forms are accepted:
+#   owner/name                      → cloned from GitHub
+#   https://github.com/owner/name   → cloned as given
+#   ./path/to/project               → used in place, nothing cloned
+#
+# `#` starts a comment. Blank lines are ignored. Duplicates are dropped.
+#
+# The list below is a starting point, not a recommendation: pick projects whose
+# READMEs claim a quickstart, and keep the list small enough that a run finishes
+# in an afternoon.
+
+# small libraries with short, honest READMEs
+sindresorhus/got
+chalk/chalk
+
+# larger projects where setup has more moving parts
+vercel/next.js
+expressjs/express
+
+# local projects
+./examples/broken-app

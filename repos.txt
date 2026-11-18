@@ -1,0 +1,133 @@
+# The corpus.
+#
+# 103 repositories, nine ecosystems. Chosen for spread rather than prestige:
+# libraries and applications, monorepos and single-file tools, READMEs that are
+# a quickstart and READMEs that are a signpost to docs. Everything here is
+# public, actively used, and old enough that its setup instructions have had
+# time to drift.
+#
+# Re-run the audit with this file to reproduce the published numbers. A full
+# run takes hours, so CI splits it: `--shard 1/4` through `--shard 4/4`.
+#
+# Lines are `owner/name`, a GitHub URL, or a path on disk. `#` starts a comment.
+
+# javascript / typescript (27)
+sindresorhus/got
+chalk/chalk
+expressjs/express
+koajs/koa
+axios/axios
+lodash/lodash
+socketio/socket.io
+nestjs/nest
+vitejs/vite
+webpack/webpack
+rollup/rollup
+eslint/eslint
+prettier/prettier
+jestjs/jest
+vitest-dev/vitest
+tailwindlabs/tailwindcss
+prisma/prisma
+fastify/fastify
+ramda/ramda
+reduxjs/redux
+date-fns/date-fns
+npm/cli
+yargs/yargs
+vercel/next.js
+nuxt/nuxt
+sveltejs/svelte
+withastro/astro
+
+# python (25)
+pallets/flask
+psf/requests
+tiangolo/fastapi
+httpie/cli
+django/django
+pallets/click
+numpy/numpy
+pandas-dev/pandas
+scikit-learn/scikit-learn
+matplotlib/matplotlib
+pytest-dev/pytest
+pydantic/pydantic
+celery/celery
+sqlalchemy/sqlalchemy
+python-poetry/poetry
+psf/black
+astral-sh/ruff
+astral-sh/uv
+Textualize/rich
+tqdm/tqdm
+streamlit/streamlit
+scrapy/scrapy
+encode/httpx
+pre-commit/pre-commit
+python/mypy
+
+# go (16)
+junegunn/fzf
+spf13/cobra
+gin-gonic/gin
+gofiber/fiber
+labstack/echo
+gorilla/mux
+grpc/grpc-go
+go-redis/redis
+jackc/pgx
+go-gorm/gorm
+stretchr/testify
+spf13/viper
+urfave/cli
+gohugoio/hugo
+caddyserver/caddy
+traefik/traefik
+
+# rust (14)
+sharkdp/bat
+BurntSushi/ripgrep
+serde-rs/serde
+tokio-rs/tokio
+clap-rs/clap
+sharkdp/fd
+sharkdp/hyperfine
+denoland/deno
+alacritty/alacritty
+starship/starship
+dandavison/delta
+eza-community/eza
+nushell/nushell
+tauri-apps/tauri
+
+# ruby (5)
+rails/rails
+sinatra/sinatra
+jekyll/jekyll
+fastlane/fastlane
+Homebrew/brew
+
+# php (4)
+laravel/laravel
+symfony/symfony
+composer/composer
+WordPress/WordPress
+
+# java / jvm (5)
+spring-projects/spring-boot
+google/guava
+gradle/gradle
+apache/maven
+junit-team/junit5
+
+# c# / .net (4)
+dotnet/runtime
+dotnet/aspnetcore
+JamesNK/Newtonsoft.Json
+AvaloniaUI/Avalonia
+
+# c (3)
+jqlang/jq
+curl/curl
+redis/redis

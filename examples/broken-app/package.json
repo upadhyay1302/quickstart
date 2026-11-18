@@ -1,0 +1,8 @@
+{
+  "name": "broken-app",
+  "private": true,
+  "scripts": {
+    "db:push": "node scripts/db-push.js",
+    "dev": "node scripts/dev.js"
+  }
+}

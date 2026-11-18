@@ -1,0 +1,33 @@
+{
+  "name": "quickstart",
+  "version": "0.1.0",
+  "description": "Check whether a README's setup instructions actually work.",
+  "type": "module",
+  "bin": {
+    "quickstart": "./dist/src/main.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "check": "npm run build && node dist/src/main.js check ."
+  },
+  "keywords": [
+    "cli",
+    "readme",
+    "documentation",
+    "ci",
+    "onboarding"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.6.3"
+  }
+}
