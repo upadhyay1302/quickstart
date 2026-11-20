@@ -187,3 +187,7 @@ tests and by `npm run check`.
 
 Design notes, including why this is TypeScript with no runtime dependencies,
 live in [docs/DESIGN.md](docs/DESIGN.md).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
