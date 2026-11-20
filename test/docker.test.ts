@@ -36,6 +36,10 @@ test("a step really runs in a container when Docker is available", async (t) => 
   // container starts, the checkout is visible inside it, and its exit code
   // comes back. Skipped rather than failed on machines without a daemon.
   if (!(await dockerAvailable())) {
+    // On CI this has to run. A skip there would be silent forever, and this is
+    // the only place the container path is ever exercised.
+    if (process.env.CI) assert.fail("Docker is not available on CI");
+
     t.skip("Docker is not available here");
     return;
   }
