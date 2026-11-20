@@ -62,3 +62,19 @@ test("runProcess does not throw when the binary is missing", async () => {
   assert.equal(result.exitCode, null);
   assert.equal(result.timedOut, false);
 });
+
+test("keeps the end of a long log, where the error is", async () => {
+  // 250,000 characters of noise between two markers. Both have to survive: the
+  // first says what ran, the last says why it failed.
+  const result = await runProcess(
+    "bash",
+    ["-lc", "printf 'START\\n'; yes x | head -c 250000; printf 'THE ERROR IS HERE\\n'"],
+    { env: baseEnv, timeoutMs: 20_000 },
+  );
+
+  assert.equal(result.exitCode, 0);
+  assert.ok(result.output.startsWith("START"), "the beginning was dropped");
+  assert.ok(result.output.endsWith("THE ERROR IS HERE\n"), "the end was dropped");
+  assert.match(result.output, /\[\d+ characters omitted\]/);
+  assert.ok(result.output.length < 250_000, `kept ${result.output.length} characters`);
+});

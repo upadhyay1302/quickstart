@@ -51,7 +51,16 @@ const SKIP_IN_COPY = new Set([
   "__pycache__",
 ]);
 
+/**
+ * Output is capped so one runaway `npm install` cannot fill a report file. Both
+ * ends are kept and the middle is what gets dropped: the first lines say what
+ * started, the last lines say what went wrong, and a failure report is worth
+ * nothing without the second.
+ */
 const MAX_OUTPUT_CHARS = 200_000;
+const HEAD_CHARS = 40_000;
+const TAIL_CHARS = MAX_OUTPUT_CHARS - HEAD_CHARS;
+
 const DEFAULT_IMAGE = "debian:bookworm-slim";
 
 /**
@@ -180,12 +189,35 @@ export function runProcess(
       detached: process.platform !== "win32",
     });
 
-    let output = "";
+    let head = "";
+    let tail = "";
+    let omitted = 0;
     let timedOut = false;
     let settled = false;
 
+    // The head fills first, then everything else goes to the tail, which is
+    // trimmed from the front so the most recent output always survives.
     const append = (chunk: Buffer) => {
-      if (output.length < MAX_OUTPUT_CHARS) output += chunk.toString("utf8");
+      let text = chunk.toString("utf8");
+
+      if (head.length < HEAD_CHARS) {
+        const room = HEAD_CHARS - head.length;
+        head += text.slice(0, room);
+        text = text.slice(room);
+        if (text === "") return;
+      }
+
+      tail += text;
+      if (tail.length > TAIL_CHARS) {
+        const dropped = tail.length - TAIL_CHARS;
+        omitted += dropped;
+        tail = tail.slice(dropped);
+      }
+    };
+
+    const collected = () => {
+      if (omitted === 0) return head + tail;
+      return `${head}\n[${omitted} characters omitted]\n${tail}`;
     };
 
     child.stdout.on("data", append);
@@ -205,7 +237,7 @@ export function runProcess(
       if (timer) clearTimeout(timer);
       resolve({
         exitCode,
-        output: truncate(output),
+        output: collected(),
         timedOut,
         durationMs: Date.now() - startedAt,
       });
@@ -227,11 +259,6 @@ function killTree(child: ReturnType<typeof spawn>): void {
   } catch {
     child.kill("SIGKILL");
   }
-}
-
-function truncate(output: string): string {
-  if (output.length <= MAX_OUTPUT_CHARS) return output;
-  return output.slice(0, MAX_OUTPUT_CHARS) + "\n[output truncated]";
 }
 
 function toOutcome(result: ProcessResult): StepOutcome {

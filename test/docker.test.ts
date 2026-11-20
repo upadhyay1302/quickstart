@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
+import { writeFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 
-import { dockerRunArgs } from "../src/runner.js";
+import { checkRepository } from "../src/check.js";
+import { dockerAvailable, dockerRunArgs } from "../src/runner.js";
+import { makeTempDir, removeDir } from "./helpers.js";
 
 const script = "set -e\nnpm ci\n";
 
@@ -25,4 +29,37 @@ test("runs the script through bash and ends on the image command", () => {
 
   assert.ok(args.includes("python:3.12-bookworm"));
   assert.deepEqual(args.slice(-3), ["bash", "-lc", script]);
+});
+
+test("a step really runs in a container when Docker is available", async (t) => {
+  // The argv tests above prove the command line looks right. This one proves a
+  // container starts, the checkout is visible inside it, and its exit code
+  // comes back. Skipped rather than failed on machines without a daemon.
+  if (!(await dockerAvailable())) {
+    t.skip("Docker is not available here");
+    return;
+  }
+
+  const repository = await makeTempDir();
+
+  try {
+    await writeFile(
+      path.join(repository, "README.md"),
+      ["## Setup", "```bash", "echo ran-in-container", "```"].join("\n"),
+    );
+
+    const report = await checkRepository(repository, {
+      runner: "docker",
+      image: "debian:bookworm-slim",
+      timeoutMs: 120_000,
+      keepGoing: false,
+    });
+
+    assert.equal(report.runner, "docker");
+    assert.equal(report.steps[0].status, "passed");
+    assert.equal(report.summary.passed, 1);
+    assert.match(report.steps[0].output, /ran-in-container/);
+  } finally {
+    await removeDir(repository);
+  }
 });
