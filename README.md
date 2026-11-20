@@ -6,26 +6,38 @@
 setup instructions, runs them in order on a clean machine, and tells you which
 step a new contributor would get stuck on.
 
+![quickstart checking the example project](docs/demo.gif)
+
+*`examples/broken-app` is broken on purpose: its README never mentions
+`DATABASE_URL`, so the third setup step fails. The recording is a real run, and
+`docs/demo.cast` is the terminal capture it was rendered from.*
+
 <!-- quickstart: skip -->
 
 ```console
-$ quickstart check .
-quickstart  /Users/mayank/src/broken-app
+$ quickstart check examples/broken-app --local
+quickstart  /Users/mayank/Desktop/quickstart/examples/broken-app
 stack       node → node:20-bookworm
 runner      local (this machine, not sandboxed)
 
-✓  1  Setup                       cp .env.example .env                           12ms
-✓  2  Setup                       mkdir -p .data                                 4ms
-✗  3  Setup                       npm run db:push                                320ms
+✓  1  Setup                 cp .env.example .env                                      7ms
+·  2  Setup                 mkdir -p .data                                            0ms
+      skipped: another install route; the first one is used
+✗  3  Setup                 npm run db:push                                           117ms
       exit code 1 · README line 22
       $ npm run db:push
+      > db:push
+      > node scripts/db-push.js
       DATABASE_URL is not set
       Copy .env.example to .env and fill it in.
-·  4  Run                         skipped: blocked by step 3
-·  5  Usage                       skipped: section "Usage" is not setup
-·  6  Deploy                      skipped: needs input (contains a placeholder)
+·  4  Run                   npm run dev                                               0ms
+      skipped: no setup command found
+·  5  Usage                 node scripts/dev.js --help                                0ms
+      skipped: section "Usage" is not setup
+·  6  Deploy                DEPLOY_TOKEN=<your-token> npm run deploy                  0ms
+      skipped: needs input (contains a placeholder)
 
-3 passed · 1 failed · 2 skipped · 412ms
+1 passed · 1 failed · 4 skipped · 128ms
 ```
 
 ## Install
