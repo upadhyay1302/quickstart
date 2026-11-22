@@ -47,6 +47,27 @@ test("--help wins over the command", () => {
   assert.equal(parseArguments(["help"]).help, true);
 });
 
+test("a flag the chosen command would ignore is a usage error", () => {
+  assert.throws(() => parseArguments(["check", "--shard", "2/4"]), UsageError);
+  assert.throws(() => parseArguments(["--out", "results"]), UsageError);
+  assert.throws(() => parseArguments(["audit", "--json"]), UsageError);
+  assert.throws(() => parseArguments(["audit", "--verbose"]), UsageError);
+});
+
+test("the same flags are accepted by the command that uses them", () => {
+  assert.deepEqual(parseArguments(["audit", "--shard", "2/4"]).shard, {
+    index: 2,
+    total: 4,
+  });
+  assert.equal(parseArguments(["audit", "--out", "out"]).out, "out");
+  assert.equal(parseArguments(["check", "--json"]).json, true);
+  assert.equal(parseArguments(["check", "--verbose"]).verbose, true);
+});
+
+test("--help does not depend on the other flags being right", () => {
+  assert.equal(parseArguments(["check", "--shard", "2/4", "--help"]).help, true);
+});
+
 test("parses durations the way people write them", () => {
   assert.equal(parseDuration("90s"), 90_000);
   assert.equal(parseDuration("5m"), 300_000);

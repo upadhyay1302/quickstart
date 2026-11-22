@@ -38,11 +38,15 @@ Options
   --timeout <dur>    per-step limit, e.g. 90s, 5m, 1h (default 5m)
   --out <dir>        where audit writes results (default results)
   --dry-run          print the plan and run nothing
-  --json             machine-readable output
+  --json             machine-readable output (check)
   --keep-going       keep running after a step fails
   --shard <i>/<n>    audit only slice i of n, e.g. --shard 2/4
-  --verbose          include passing command output
+  --verbose          include passing command output (check)
   -h, --help         this text
+
+A flag that belongs to the other command is an error, not something to
+ignore: a run that quietly did less than it was asked to is worse than one
+that stops and says so.
 
 Exit codes
   0  every step passed
@@ -99,6 +103,16 @@ export function parseArguments(argv: string[]): Options {
 
   const help = Boolean(values.help) || command === "help";
 
+  // `check --shard 2/4` used to be accepted and then ignored, which reports a
+  // full result for a run that was asked to be partial. --help is exempt so
+  // that asking for help never depends on the other flags being right.
+  if (!help) {
+    requireFlagOwner(command, "--shard", values.shard, "audit");
+    requireFlagOwner(command, "--out", values.out, "audit");
+    requireFlagOwner(command, "--json", values.json, "check");
+    requireFlagOwner(command, "--verbose", values.verbose, "check");
+  }
+
   return {
     command,
     target,
@@ -113,6 +127,23 @@ export function parseArguments(argv: string[]): Options {
     shard: values.shard ? parseShard(values.shard) : null,
     help,
   };
+}
+
+/**
+ * Rejects a flag on a command that does not read it. Silently ignoring the
+ * flag is the one option that must not be taken: the command succeeds, and the
+ * thing it did is not the thing that was asked for.
+ */
+function requireFlagOwner(
+  command: Command,
+  flag: string,
+  given: unknown,
+  onlyFor: Command,
+): void {
+  if (given === undefined || given === false) return;
+  if (command === onlyFor) return;
+
+  throw new UsageError(`${flag} only applies to \`quickstart ${onlyFor}\``);
 }
 
 /**

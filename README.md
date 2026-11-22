@@ -66,10 +66,10 @@ quickstart check --local         # run on this machine instead of Docker
 | `--image` | use a specific image instead of the detected one |
 | `--timeout` | per-step limit: `90s`, `5m`, `1h` (default `5m`) |
 | `--dry-run` | print the plan and execute nothing |
-| `--json` | emit the full report as JSON |
+| `--json` | emit the full report as JSON (check only) |
 | `--keep-going` | keep running after a failure |
-| `--shard` | audit one slice of the list: `--shard 2/4` |
-| `--verbose` | show output from passing steps too |
+| `--shard` | audit one slice of the list: `--shard 2/4` (audit only) |
+| `--verbose` | show output from passing steps too (check only) |
 
 Exit codes: `0` everything passed, `1` something failed, `2` the tool could not
 run.
