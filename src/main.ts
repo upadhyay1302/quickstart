@@ -9,8 +9,8 @@ import {
   formatAuditTotals,
   parseRepoList,
 } from "./audit.js";
-import { CheckError, NoRunnerError, checkRepository, planRepository } from "./check.js";
-import { formatJson, formatText } from "./report.js";
+import { CheckError, NoRunnerError, VERSION, checkRepository, planRepository } from "./check.js";
+import { formatJson, formatPlanJson, formatText } from "./report.js";
 
 const EXIT_OK = 0;
 const EXIT_FAILED = 1;
@@ -50,7 +50,26 @@ async function runCheck(options: Options): Promise<number> {
   try {
     if (options.dryRun) {
       const plan = await planRepository(repository, options.image);
-      printPlan(repository, plan.steps, plan.stack, plan.image);
+
+      // A dry run asked for JSON has to answer in JSON. Printing the readable
+      // plan for it would leave the flag doing nothing, which is the thing
+      // this command was just taught not to do.
+      if (options.json) {
+        console.log(
+          formatPlanJson({
+            tool: "quickstart",
+            version: VERSION,
+            repository,
+            dryRun: true,
+            stack: plan.stack,
+            image: plan.image,
+            steps: plan.steps,
+          }),
+        );
+      } else {
+        printPlan(repository, plan.steps, plan.stack, plan.image);
+      }
+
       return EXIT_OK;
     }
 

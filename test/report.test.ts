@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { formatJson, formatText, summaryLine, type Report } from "../src/report.js";
+import { formatJson, formatPlanJson, formatText, summaryLine, type Report } from "../src/report.js";
 
 function report(): Report {
   return {
@@ -70,6 +70,44 @@ test("the text report names the step, the failing command and its output", () =>
 
 test("the summary counts failures and skips separately", () => {
   assert.equal(summaryLine(report()), "1 passed · 1 failed · 1 skipped · 2.4s");
+});
+
+test("the json plan says what would run and why the rest is skipped", () => {
+  const parsed = JSON.parse(
+    formatPlanJson({
+      tool: "quickstart",
+      version: "0.1.0",
+      repository: "/tmp/app",
+      dryRun: true,
+      stack: "node",
+      image: "node:20-bookworm",
+      steps: [
+        {
+          index: 1,
+          line: 6,
+          section: "Setup",
+          language: "bash",
+          commands: ["npm install"],
+          status: "run",
+          reason: "",
+        },
+        {
+          index: 2,
+          line: 12,
+          section: "Usage",
+          language: "bash",
+          commands: ["app --help"],
+          status: "skip",
+          reason: 'section "Usage" is not setup',
+        },
+      ],
+    }),
+  );
+
+  assert.equal(parsed.dryRun, true);
+  assert.equal(parsed.steps[0].status, "run");
+  assert.equal(parsed.steps[1].status, "skip");
+  assert.equal(parsed.steps[1].reason, 'section "Usage" is not setup');
 });
 
 test("the json report is stable and parseable", () => {
