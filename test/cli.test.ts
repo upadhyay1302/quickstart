@@ -158,6 +158,25 @@ test("a directory without a README exits 2", async () => {
   }
 });
 
+test("a flag belonging to the other command exits 2 and says which one", async () => {
+  const repo = await makeTempDir();
+  try {
+    await writeFile(path.join(repo, "package.json"), "{}\n");
+    await writeFile(
+      path.join(repo, "README.md"),
+      ["## Setup", "```bash", "echo hi", "```"].join("\n"),
+    );
+
+    const result = await runCli(["check", repo, "--shard", "2/4"]);
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.output, /--shard only applies to `quickstart audit`/);
+    assert.doesNotMatch(result.output, /at Object\./);
+  } finally {
+    await removeDir(repo);
+  }
+});
+
 test("an unknown flag exits 2 with a hint instead of a stack trace", async () => {
   const result = await runCli(["--nonsense"]);
 
