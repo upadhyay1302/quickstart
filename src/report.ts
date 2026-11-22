@@ -31,6 +31,30 @@ export type Report = {
   >;
 };
 
+/**
+ * The plan a dry run prints. It has the shape of a step in the report but no
+ * results, because nothing ran: `status` is what would happen, not what did.
+ */
+export type PlanStep = {
+  index: number;
+  line: number;
+  section: string;
+  language: string;
+  commands: string[];
+  status: "run" | "skip";
+  reason: string;
+};
+
+export type PlanReport = {
+  tool: "quickstart";
+  version: string;
+  repository: string;
+  dryRun: true;
+  stack: string;
+  image: string;
+  steps: PlanStep[];
+};
+
 const SYMBOLS: Record<RunStatus, string> = {
   passed: "✓",
   failed: "✗",
@@ -122,6 +146,14 @@ export function formatText(report: Report, options: { colour: boolean; verbose: 
  */
 export function formatJson(report: Report): string {
   return JSON.stringify(report, null, 2);
+}
+
+/**
+ * `--dry-run --json`, so a script can ask what a README would run without
+ * having to read the human output.
+ */
+export function formatPlanJson(plan: PlanReport): string {
+  return JSON.stringify(plan, null, 2);
 }
 
 export function summaryLine(report: Report): string {

@@ -146,6 +146,33 @@ test("a dry run prints the plan and executes nothing", async () => {
   }
 });
 
+test("a dry run asked for json answers in json, and still runs nothing", async () => {
+  const repo = await makeTempDir();
+  const marker = path.join(repo, "should-not-exist");
+
+  try {
+    await writeFile(path.join(repo, "package.json"), "{}\n");
+    await writeFile(
+      path.join(repo, "README.md"),
+      ["## Setup", "```bash", `touch ${marker}`, "```"].join("\n"),
+    );
+
+    const result = await runCli(["check", repo, "--dry-run", "--json"]);
+    const plan = JSON.parse(result.output);
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(plan.dryRun, true);
+    assert.equal(plan.repository, repo);
+    assert.equal(plan.stack, "node");
+    assert.equal(plan.steps.length, 1);
+    assert.equal(plan.steps[0].status, "run");
+    assert.deepEqual(plan.steps[0].commands, [`touch ${marker}`]);
+    await assert.rejects(access(marker));
+  } finally {
+    await removeDir(repo);
+  }
+});
+
 test("a directory without a README exits 2", async () => {
   const repo = await makeTempDir();
   try {
